@@ -28,8 +28,8 @@ order by txn_count desc limit 20
 
 
 cube_name = "top_users"
-dimension_name="category"
-ENDPOINT_EXAMPLE=f"""
+dimension_name = "category"
+ENDPOINT_EXAMPLE = f"""
 For example: a cube with name ${cube_name} is having the following predefined SQL 
 {TOP_TXNS_REGION}.
 To get data from this cube, you need to invoke endpoint/{cube_name} with method POST and body as below:
@@ -108,7 +108,7 @@ DOZER_GENERATE_QUERY_RESPONSE = """
 ```
 """
 
-DOZER_GENERATE_QUERY="""
+DOZER_GENERATE_QUERY = """
 UNDERSTAND SEMANTICS OF CUBE
 Here is the semantics of the cube:
 {raw_tables_yaml}
@@ -125,4 +125,3 @@ Each cube is a table with dimensions. Your task is to generate a valid Clickhous
 QUESTION: {input}
 Response: SQL query as a string without any additional information.
 """
-
