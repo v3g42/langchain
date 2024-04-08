@@ -16,6 +16,7 @@ _module_lookup = {
     "BingSearchAPIWrapper": "langchain_community.utilities.bing_search",
     "BraveSearchWrapper": "langchain_community.utilities.brave_search",
     "DriaAPIWrapper": "langchain_community.utilities.dria_index",
+    "DozerPulseWrapper": "langchain_community.utilities.dozer",
     "DuckDuckGoSearchAPIWrapper": "langchain_community.utilities.duckduckgo_search",
     "GoldenQueryAPIWrapper": "langchain_community.utilities.golden_query",
     "GoogleFinanceAPIWrapper": "langchain_community.utilities.google_finance",
