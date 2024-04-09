@@ -38,7 +38,7 @@ class DozerRawQueryTool(BaseTool):
         query: str,
         run_manager: Optional[CallbackManagerForToolRun] = None,
     ) -> str:
-        """Use the tool."""
+        """Use the DozerRawQueryTool"""
         return self.dozer.raw_query(query)
 
 
@@ -63,7 +63,7 @@ class DozerQueryEndpointTool(BaseTool):
         params: EndpointQueryParams,
         run_manager: Optional[CallbackManagerForToolRun] = None,
     ) -> str:
-        """Use the tool."""
+        """Use the DozerQueryEndpointTool."""
         return self.dozer.query_endpoint(params=params)
 
 
@@ -104,10 +104,8 @@ class DozerGenerateSqlQueryTool(BaseTool):
     def initialize_llm_chain(cls, values: Dict[str, Any]) -> Dict[str, Any]:
         if not values["raw_tables_yaml"]:
             raise "raw_tables_yaml is expected"
-
         if "llm_chain" not in values:
             from langchain.chains.llm import LLMChain
-
             values["llm_chain"] = LLMChain(
                 llm=values.get("llm"),
                 prompt=PromptTemplate(
@@ -144,7 +142,7 @@ class DozerGenerateSqlQueryTool(BaseTool):
 
 
 class DozerQueryPlanTool(BaseTool):
-    """Use an LLM to call Dozer Pulse APIs"""
+    """Planning a process to get data to answer the question."""
 
     name: str = "dozer_plan"
     description: str = (

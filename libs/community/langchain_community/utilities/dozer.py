@@ -107,7 +107,7 @@ class DozerPulseWrapper(BaseModel):
         data = response.json()
         return Semantics(**data)
 
-    def query_endpoint(self, params: EndpointQueryParams) -> dict:
+    def query_endpoint(self, params: EndpointQueryParams, offset=None) -> dict:
         """
         Send a POST request to the query endpoint with the provided parameters.
 
@@ -118,11 +118,15 @@ class DozerPulseWrapper(BaseModel):
             dict: The JSON response from the server.
         """
 
-        headers = self._headers()
-        url = f"{self.base_url}/apps/{self.application_id}/{params.endpoint_name}"
-        response = requests.post(url, headers=headers, json=params.params)
-        response.raise_for_status()
-        return response.json()
+        try:
+            headers = self._headers()
+            url = f"{self.base_url}/apps/{self.application_id}/{params.endpoint_name}?paginate=true&offset={offset or 10}"
+            response = requests.post(url, headers=headers, json=params.params)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            print(e.response.content)
+            return {"error": str(e.response.content)}
 
     def raw_query(self, raw_sql: str) -> dict:
         """
@@ -136,9 +140,13 @@ class DozerPulseWrapper(BaseModel):
         """
         headers = self._headers()
         url = f"{self.base_url}/apps/{self.application_id}/execute"
-        response = requests.post(url, headers=headers, json={"query": raw_sql})
-        response.raise_for_status()
-        return response.json()
+        try :
+            response = requests.post(url, headers=headers, json={"query": raw_sql})
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            print(e.response.content)
+            return {"error": str(e.response.content)}
 
     def _headers(self) -> dict:
         headers = {

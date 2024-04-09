@@ -40,10 +40,24 @@ class DozerPulseToolkit(BaseToolkit):
 
     def get_tools(self) -> List[BaseTool]:
         """Get the tools in the toolkit."""
-        raw_tables_yaml = self.fetch_tables()
+        raw_table_cubes = self.semantics.filter_tables().cubes;
+        raw_tables_str = '';
+        for cube in raw_table_cubes:
+            table_description = cube['description'] if 'description' in cube else ''
+            raw_tables_str += format(f"Name: {cube['sql_table']}\n");
+            raw_tables_str += format(f"Description: {table_description}\n");
+            raw_tables_str += format(f"Columns: \n");
+            # get keys of dictionary
+            dimensions = cube['dimensions'];
+            keys = dimensions.keys();
+            for key in keys:
+                description = dimensions[key]['description'] if 'description' in dimensions[key] else ''
+                raw_tables_str += format(f"    {key} {dimensions[key]['sql_type']}    {description} \n");
+            raw_tables_str += format(f"==============================\n");
 
+        
         generate_tool = DozerGenerateSqlQueryTool(
-            dozer=self.dozer, llm=self.llm, raw_tables_yaml=raw_tables_yaml
+            dozer=self.dozer, llm=self.llm, raw_tables_yaml=raw_tables_str
         )
         query_endpoint_tool = DozerQueryEndpointTool(dozer=self.dozer)
         raw_query_tool = DozerRawQueryTool(dozer=self.dozer)
@@ -58,4 +72,6 @@ class DozerPulseToolkit(BaseToolkit):
     def fetch_tables(self) -> str:
         """Return semantics for raw_tables."""
         semantics = self.semantics.filter_tables()
-        return yaml.dump(semantics)
+        # format  table name, description, properties
+        
+        return yaml.dump(semantics.cubes)

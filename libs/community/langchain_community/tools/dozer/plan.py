@@ -13,8 +13,6 @@ from langchain_core.tools import BaseTool
 from langchain_community.utilities.dozer import DozerPulseWrapper
 
 from .prompt import (
-    DOZER_GENERATE_QUERY,
-    DOZER_GENERATE_QUERY_RESPONSE,
     DOZER_QUERY_PLAN_PROMPT,
     ENDPOINT_EXAMPLE,
     PLAN_OUTPUT_FORMAT,
@@ -81,59 +79,59 @@ class DozerSemanticsTool(BaseTool):
         return self.dozer.fetch_semantics()
 
 
-class DozerGenerateSqlQueryTool(BaseTool):
-    """Use an LLM to generate a valid SQL query"""
+# class DozerGenerateSqlQueryTool(BaseTool):
+#     """Use an LLM to generate a valid SQL query"""
 
-    name: str = "dozer_generate_query"
-    description: str = (
-        "Use this tool generate a valid SQL query to be executed raw using Dozer APIs"
-    )
+#     name: str = "dozer_generate_query"
+#     description: str = (
+#         "Use this tool generate a valid SQL query to be executed raw using Dozer APIs"
+#     )
 
-    @root_validator(pre=True)
-    def initialize_llm_chain(cls, values: Dict[str, Any]) -> Dict[str, Any]:
-        if "llm_chain" not in values:
-            from langchain.chains.llm import LLMChain
+#     @root_validator(pre=True)
+#     def initialize_llm_chain(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+#         if "llm_chain" not in values:
+#             from langchain.chains.llm import LLMChain
 
-            values["llm_chain"] = LLMChain(
-                llm=values.get("llm"),
-                prompt=PromptTemplate(
-                    template=DOZER_GENERATE_QUERY,
-                    input_variables=["query"],
-                    partial_variables={
-                        "format_response": DOZER_GENERATE_QUERY_RESPONSE,
-                    },
-                ),
-            )
+#             values["llm_chain"] = LLMChain(
+#                 llm=values.get("llm"),
+#                 prompt=PromptTemplate(
+#                     template=DOZER_GENERATE_QUERY,
+#                     input_variables=["query"],
+#                     partial_variables={
+#                         "format_response": DOZER_GENERATE_QUERY_RESPONSE,
+#                     },
+#                 ),
+#             )
 
-        if values["llm_chain"].prompt.input_variables != ["query"]:
-            raise ValueError(
-                "LLM chain for DozerQueryTool must have input variables ['query']"
-            )
+#         if values["llm_chain"].prompt.input_variables != ["query"]:
+#             raise ValueError(
+#                 "LLM chain for DozerQueryTool must have input variables ['query']"
+#             )
 
-        return values
+#         return values
 
-    def _run(
-        self,
-        query: str,
-        run_manager: Optional[CallbackManagerForToolRun] = None,
-    ) -> str:
-        """Use the LLM to check the query."""
-        return self.llm_chain.predict(
-            query=query,
-            dialect=self.db.dialect,
-            callbacks=run_manager.get_child() if run_manager else None,
-        )
+#     def _run(
+#         self,
+#         query: str,
+#         run_manager: Optional[CallbackManagerForToolRun] = None,
+#     ) -> str:
+#         """Use the LLM to check the query."""
+#         return self.llm_chain.predict(
+#             query=query,
+#             dialect=self.db.dialect,
+#             callbacks=run_manager.get_child() if run_manager else None,
+#         )
 
-    async def _arun(
-        self,
-        query: str,
-        run_manager: Optional[AsyncCallbackManagerForToolRun] = None,
-    ) -> str:
-        return await self.llm_chain.apredict(
-            query=query,
-            dialect=self.db.dialect,
-            callbacks=run_manager.get_child() if run_manager else None,
-        )
+#     async def _arun(
+#         self,
+#         query: str,
+#         run_manager: Optional[AsyncCallbackManagerForToolRun] = None,
+#     ) -> str:
+#         return await self.llm_chain.apredict(
+#             query=query,
+#             dialect=self.db.dialect,
+#             callbacks=run_manager.get_child() if run_manager else None,
+#         )
 
 
 class DozerQueryPlanTool(BaseTool):
