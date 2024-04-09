@@ -24,11 +24,11 @@ from langchain_core.prompts.chat import (
 
 from langchain_community.agent_toolkits.dozer.prompt import (
     DOZER_FUNCTIONS_SUFFIX,
+    DOZER_PREFIX,
     DOZER_SUFFIX,
-    DOZER_PREFIX
 )
 from langchain_community.agent_toolkits.dozer.toolkit import DozerPulseToolkit
-from langchain_community.tools.dozer.tool import (DozerSemanticsTool)
+from langchain_community.tools.dozer.tool import DozerSemanticsTool
 
 if TYPE_CHECKING:
     from langchain.agents.agent import AgentExecutor
@@ -62,7 +62,7 @@ def create_dozer_agent(
 ) -> AgentExecutor:
     """Construct a Dozer Pulse agent from an LLM and toolkit or dozer instance."""
 
-     # noqa: E501
+    # noqa: E501
     from langchain.agents import (
         create_openai_tools_agent,
         create_react_agent,
@@ -73,6 +73,8 @@ def create_dozer_agent(
         RunnableMultiActionAgent,
     )
     from langchain.agents.agent_types import AgentType
+
+
 
     if toolkit is None and dozer is None:
         raise ValueError(
@@ -89,8 +91,6 @@ def create_dozer_agent(
     toolkit = toolkit or DozerPulseToolkit(llm=llm, db=dozer)
     agent_type = agent_type or AgentType.ZERO_SHOT_REACT_DESCRIPTION
     tools = toolkit.get_tools() + list(extra_tools)
-    
-
 
     if prompt is None:
         prefix = prefix or DOZER_PREFIX
@@ -98,7 +98,7 @@ def create_dozer_agent(
         prefix = prefix.format(top_k=top_k, semantics=semantics)
     else:
         if "top_k" in prompt.input_variables:
-            prompt = prompt.partial(top_k=str(top_k))        
+            prompt = prompt.partial(top_k=str(top_k))
         if any(key in prompt.input_variables for key in ["semantics"]):
             semantics = toolkit.fetch_endpoints()
             if "semantics" in prompt.input_variables:
@@ -106,7 +106,7 @@ def create_dozer_agent(
                 tools = [
                     tool for tool in tools if not isinstance(tool, DozerSemanticsTool)
                 ]
-        
+
     if agent_type == AgentType.ZERO_SHOT_REACT_DESCRIPTION:
         if prompt is None:
             from langchain.agents.mrkl import prompt as react_prompt
@@ -127,7 +127,7 @@ def create_dozer_agent(
             runnable=create_react_agent(llm, tools, prompt),
             input_keys_arg=["input"],
             return_keys_arg=["output"],
-            verbose=verbose
+            verbose=verbose,
         )
 
     elif agent_type == "openai-tools":
@@ -143,7 +143,7 @@ def create_dozer_agent(
             runnable=create_openai_tools_agent(llm, tools, prompt),
             input_keys_arg=["input"],
             return_keys_arg=["output"],
-            verbose=verbose
+            verbose=verbose,
         )
 
     else:

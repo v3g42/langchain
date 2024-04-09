@@ -12,7 +12,7 @@ _module_lookup = {
     "AzureCognitiveServicesToolkit": "langchain_community.agent_toolkits.azure_cognitive_services",  # noqa: E501
     "CogniswitchToolkit": "langchain_community.agent_toolkits.cogniswitch.toolkit",
     "ConneryToolkit": "langchain_community.agent_toolkits.connery",
-    "DozerPulseToolkit": "langchain_community.agent_toolkits.dozer.toolkit", 
+    "DozerPulseToolkit": "langchain_community.agent_toolkits.dozer.toolkit",
     "FileManagementToolkit": "langchain_community.agent_toolkits.file_management.toolkit",  # noqa: E501
     "GmailToolkit": "langchain_community.agent_toolkits.gmail.toolkit",
     "JiraToolkit": "langchain_community.agent_toolkits.jira.toolkit",
@@ -37,7 +37,6 @@ _module_lookup = {
     "create_pbi_chat_agent": "langchain_community.agent_toolkits.powerbi.chat_base",
     "create_spark_sql_agent": "langchain_community.agent_toolkits.spark_sql.base",
     "create_sql_agent": "langchain_community.agent_toolkits.sql.base",
-    
 }
 
 

@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "dozer-pulse"
+name = "dozer-pulse-agent"
 version = "0.0.1"
 description = ""
 authors = []

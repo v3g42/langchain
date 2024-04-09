@@ -1,17 +1,18 @@
 import json
-from typing import List
+from dataclasses import dataclass
+from typing import Dict, List, Optional
 
 import requests
 from langchain_core.documents import Document
-from langchain_core.pydantic_v1 import BaseModel, Field, root_validator, SecretStr
-from dataclasses import dataclass
-from typing import Optional, Dict, List
+from langchain_core.pydantic_v1 import BaseModel, Field, SecretStr, root_validator
 from langchain_core.utils import convert_to_secret_str, get_from_dict_or_env
+
 
 @dataclass
 class EndpointQueryParams:
     endpoint_name: str
     params: Optional[dict] = None
+
 
 @dataclass
 class Dimension:
@@ -44,31 +45,31 @@ class Cube:
 class Semantics:
     cubes: List[Cube]
 
-    def filter_endpoints(self) -> 'Semantics':
+    def filter_endpoints(self) -> "Semantics":
         """Filters cubes where the sql attribute is not None."""
-        filtered_cubes = [cube for cube in self.cubes if 'sql' in cube]
+        filtered_cubes = [cube for cube in self.cubes if "sql" in cube]
         return Semantics(cubes=filtered_cubes)
-    
-    def filter_tables(self) -> 'Semantics':
+
+    def filter_tables(self) -> "Semantics":
         """Filters cubes where the sql attribute is None."""
-        filtered_cubes = [cube for cube in self.cubes if not 'sql' in cube]
+        filtered_cubes = [cube for cube in self.cubes if not "sql" in cube]
         return Semantics(cubes=filtered_cubes)
 
 
 class DozerPulseWrapper(BaseModel):
     """Wrapper around Dozer Pulse APIs.
-    
+
     Example:
       .. code-block:: python
 
       from langchain_community.utilities import DozerPulseWrapper
       pulse = DozerPulseWrapper()
-      pulse.run('semantics')    
+      pulse.run('semantics')
     """
 
     api_key: Optional[SecretStr]
     """The API key to use for Dozer Pulse."""
-    
+
     application_id: Optional[int]
     """Application Id in Dozer Pulse."""
 
@@ -82,19 +83,21 @@ class DozerPulseWrapper(BaseModel):
         values["api_key"] = convert_to_secret_str(
             get_from_dict_or_env(values, "api_key", "DOZER_API_KEY")
         )
-        values["application_id"] = get_from_dict_or_env(values, "application_id", "DOZER_APP_ID")
-        
+        values["application_id"] = get_from_dict_or_env(
+            values, "application_id", "DOZER_APP_ID"
+        )
+
         return values
-    
+
     def fetch_semantics(self) -> Semantics:
         """Fetch Semanatics for a given application using Dozer Pulse APIs.
 
         Returns:
-          Semantics: An instance of the Semantics data class containing the fetched 
+          Semantics: An instance of the Semantics data class containing the fetched
                    semantic information as a list of Cube data class instances.
 
         Raises:
-          HTTPError: An error from the requests library if the HTTP request returned 
+          HTTPError: An error from the requests library if the HTTP request returned
                    an unsuccessful status code.
         """
         headers = self._headers()
@@ -103,8 +106,8 @@ class DozerPulseWrapper(BaseModel):
         response.raise_for_status()
         data = response.json()
         return Semantics(**data)
-    
-    def query_endpoint(self, params: EndpointQueryParams) -> dict:
+
+    def query_endpoint(self, params: EndpointQueryParams, offset=None) -> dict:
         """
         Send a POST request to the query endpoint with the provided parameters.
 
@@ -114,12 +117,16 @@ class DozerPulseWrapper(BaseModel):
         Returns:
             dict: The JSON response from the server.
         """
-        
-        headers = self._headers()
-        url = f"{self.base_url}/apps/{self.application_id}/{params.endpoint_name}"
-        response = requests.post(url, headers=headers, json=params.params)
-        response.raise_for_status()
-        return response.json()
+
+        try:
+            headers = self._headers()
+            url = f"{self.base_url}/apps/{self.application_id}/{params.endpoint_name}?paginate=true&offset={offset or 10}"
+            response = requests.post(url, headers=headers, json=params.params)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            print(e.response.content)
+            return {"error": str(e.response.content)}
 
     def raw_query(self, raw_sql: str) -> dict:
         """
@@ -133,10 +140,14 @@ class DozerPulseWrapper(BaseModel):
         """
         headers = self._headers()
         url = f"{self.base_url}/apps/{self.application_id}/execute"
-        response = requests.post(url, headers=headers, json={"query": raw_sql})
-        response.raise_for_status()
-        return response.json()
-    
+        try :
+            response = requests.post(url, headers=headers, json={"query": raw_sql})
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            print(e.response.content)
+            return {"error": str(e.response.content)}
+
     def _headers(self) -> dict:
         headers = {
             "Authorization": f"Bearer {self.api_key.get_secret_value()}",

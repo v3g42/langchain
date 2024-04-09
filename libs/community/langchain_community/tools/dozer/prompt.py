@@ -28,8 +28,8 @@ order by txn_count desc limit 20
 
 
 cube_name = "top_users"
-dimension_name="category"
-ENDPOINT_EXAMPLE=f"""
+dimension_name = "category"
+ENDPOINT_EXAMPLE = f"""
 For example: a cube with name ${cube_name} is having the following predefined SQL 
 {TOP_TXNS_REGION}.
 To get data from this cube, you need to invoke endpoint/{cube_name} with method POST and body as below:
@@ -108,21 +108,27 @@ DOZER_GENERATE_QUERY_RESPONSE = """
 ```
 """
 
-DOZER_GENERATE_QUERY="""
-UNDERSTAND SEMANTICS OF CUBE
-Here is the semantics of the cube:
+DOZER_GENERATE_QUERY = """
+TABLES STRUCTURE:
+
 {raw_tables_yaml}
 
-Each cube is a table with dimensions. Your task is to generate a valid Clickhouse SQL query to get data from these cubes.
+Your task is to generate a valid Clickhouse SQL query to retrieve data from the provided tables. Follow these steps carefully:
+
+1. Understand the Schema: Examine the schema details for each table. Identify the columns available in each table and their relationships, particularly focusing on common columns that can be used for JOIN operations.
+2. Analyze the Query: Review the user's question and determine the data requirements. Identify the tables that need to be queried and the columns necessary to answer the question effectively.
+3. Construct the Query: Use Clickhouse SQL syntax to construct the query. Include the necessary columns in the SELECT clause, apply JOIN operations to combine tables, and use WHERE conditions for filtering data.
     - Using Clickhouse SQL syntax to write query
-    - Get only column you need by using SELECT clause. Only include columns that relevant to the question and valuable to natural response for user to understand.
+    - Use JOIN to combine data from different tables.
+    - Get only column you need by using SELECT clause. Only include columns that relevant to the question and valuable to natural response for user to understand. Aim to minimize the number of selected columns for optimization purposes.
+    - Ensure that the selected columns exist in the table from which they are being selected. DO NOT include any columns in the SELECT statement that are not explicitly listed under the table's schema.
     - Pagination is supported by using LIMIT and OFFSET in the query. Let assume that the page_size is 100 and offset is 0.
     - Aggregation can be done by using GROUP BY and aggregate functions.
     - Filtering can be done by using WHERE clause.
-    - Sorting can be done by using ORDER BY clause.
-    - When choosing columns to include in the SELECT statement, ensure that if any column is being aggregated (e.g., using SUM, AVG, etc.), all other non-aggregated columns are either aggregated too or included in the GROUP BY clause.
+    - Sorting can be done by using ORDER BY clause. When sorting by a column that is not directly present in the queried table, make sure to join the relevant tables to access that column.
+    - DO NOT include ;
+4. Generate the Query: Based on the analysis and construction steps, generate a valid Clickhouse SQL query that accurately responds to the user's question. Ensure that the query is well-structured, efficient, and provides the necessary data to answer the query effectively.
 
 QUESTION: {input}
 Response: SQL query as a string without any additional information.
 """
-

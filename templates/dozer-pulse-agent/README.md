@@ -17,13 +17,13 @@ pip install -U langchain-cli
 To create a new LangChain project and install this as the only package, you can do:
 
 ```shell
-langchain app new my-app --package dozer-pulse
+langchain app new my-app --package dozer-pulse-agent
 ```
 
 If you want to add this to an existing project, you can just run:
 
 ```shell
-langchain app add dozer-pulse
+langchain app add dozer-pulse-agent
 ```
 
 And add the following code to your `server.py` file:
